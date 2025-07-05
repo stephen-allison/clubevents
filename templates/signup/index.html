@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup!</title>
+</head>
+<body>
+<h1>Sign up for QPH events!</h1>
+{% for event in events %}
+    <h3>{{ event.name }} on {{ event.date }}</h3>
+{%  endfor %}
+</body>
+</html>
