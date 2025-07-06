@@ -1,13 +1,19 @@
 <!DOCTYPE html>
+{% load tailwind_tags %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {% tailwind_css %}
     <title>Signup!</title>
 </head>
 <body>
-<h1>Sign up for QPH events!</h1>
-{% for event in events %}
-    <h3>{{ event.name }} on {{ event.date }}</h3>
-{%  endfor %}
+<div class="bg-red-500 text-white p-8 text-6xl font-bold">
+    Sign up for QPH events!
+</div>
+<div class="bg-blue-500 text-white p-4">
+    {% for event in events %}
+        <div>{{ event.name }} on {{ event.date }}</div>
+    {% endfor %}
+</div>
 </body>
 </html>
