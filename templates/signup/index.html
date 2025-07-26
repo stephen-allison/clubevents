@@ -4,16 +4,44 @@
 <head>
     <meta charset="UTF-8">
     {% tailwind_css %}
-    <title>Signup!</title>
+    <title>SignupApp</title>
 </head>
-<body>
-<div class="bg-red-500 text-white p-8 text-6xl font-bold">
-    Sign up for QPH events!
-</div>
-<div class="bg-blue-500 text-white p-4">
-    {% for event in events %}
-        <div>{{ event.name }} on {{ event.date }}</div>
-    {% endfor %}
-</div>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Welcome to SignupApp</h1>
+        
+        {% if not user.is_authenticated %}
+            <div class="bg-white p-6 mb-4 rounded-lg shadow border">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Get Started</h3>
+                <p class="text-gray-600 mb-4">Sign up for QPH events by creating an account or logging in.</p>
+                
+                <div class="space-x-4">
+                    <a href="{% url 'signup:login' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                        Login
+                    </a>
+                    <a href="{% url 'signup:register' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+                        Register
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-white p-6 mb-4 rounded-lg shadow border">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Welcome back, {{ user.username }}!</h3>
+                <p class="text-gray-600 mb-4">Ready to sign up for events?</p>
+                
+                <div class="space-x-4">
+                    <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                        View Events & Signups
+                    </a>
+                    <form method="post" action="{% url 'signup:logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-block bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold py-2 px-4 rounded">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>

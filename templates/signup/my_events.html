@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% load tailwind_tags %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% tailwind_css %}
+    <title>My Events - SignupApp</title>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">My Events</h1>
+            <div class="space-x-4">
+                {% if signups %}
+                    <a href="{% url 'signup:my_events_ics' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
+                        Download Calendar
+                    </a>
+                {% endif %}
+                <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                    Back to All Events
+                </a>
+            </div>
+        </div>
+        
+        {% if signups %}
+            <div class="bg-white rounded-lg shadow border">
+                {% for signup in signups %}
+                    <div class="p-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800">{{ signup.event.name }}</h3>
+                                <p class="text-gray-600">{{ signup.event.date }}</p>
+                            </div>
+                            <span class="text-sm text-gray-500">Signed up: {{ signup.signup_date }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white p-6 rounded-lg shadow border text-center">
+                <p class="text-gray-500">You're not signed up for any upcoming events.</p>
+                <a href="{% url 'signup:event_list_signups' %}" class="mt-4 inline-block bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                    Browse Events
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

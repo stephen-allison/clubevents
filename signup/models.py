@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Event(models.Model):
@@ -10,6 +11,7 @@ class Event(models.Model):
 
 class Signup(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     signup_name = models.CharField(max_length=512)
     signup_email = models.EmailField()
     signup_date = models.DateField()
