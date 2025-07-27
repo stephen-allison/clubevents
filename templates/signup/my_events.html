@@ -15,6 +15,9 @@
                     <a href="{% url 'signup:my_events_ics' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
                         Download Calendar
                     </a>
+                    <a href="{% url 'signup:calendar_feed' user.userprofile.calendar_uid %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+                        Subscribe to Calendar
+                    </a>
                 {% endif %}
                 <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
                     Back to All Events
@@ -26,10 +29,19 @@
             <div class="bg-white rounded-lg shadow border">
                 {% for signup in signups %}
                     <div class="p-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-xl font-semibold text-gray-800">{{ signup.event.name }}</h3>
                                 <p class="text-gray-600">{{ signup.event.date }}</p>
+                                {% if signup.event.location %}
+                                    <p class="text-gray-600 text-sm">📍 {{ signup.event.location }}</p>
+                                {% endif %}
+                                {% if signup.event.description %}
+                                    <p class="text-gray-700 text-sm mt-1">{{ signup.event.description }}</p>
+                                {% endif %}
+                                {% if signup.event.website %}
+                                    <a href="{{ signup.event.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">🌐 Website</a>
+                                {% endif %}
                             </div>
                             <span class="text-sm text-gray-500">Signed up: {{ signup.signup_date }}</span>
                         </div>

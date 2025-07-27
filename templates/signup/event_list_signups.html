@@ -29,6 +29,15 @@
                         <div>
                             <h2 class="text-2xl font-semibold text-gray-800">{{ event.name }}</h2>
                             <p class="text-gray-600 mt-1">{{ event.date }}</p>
+                            {% if event.location %}
+                                <p class="text-gray-600 text-sm">📍 {{ event.location }}</p>
+                            {% endif %}
+                            {% if event.description %}
+                                <p class="text-gray-700 mt-2">{{ event.description }}</p>
+                            {% endif %}
+                            {% if event.website %}
+                                <a href="{{ event.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">🌐 Event Website</a>
+                            {% endif %}
                         </div>
                         {% if user.is_authenticated %}
                             {% if event.user_signup %}
@@ -39,12 +48,18 @@
                                     </button>
                                 </form>
                             {% else %}
-                                <form method="post" action="{% url 'signup:event_signup' event.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-                                        Sign Up
+                                {% if event.signup_closed %}
+                                    <button disabled class="bg-gray-400 text-gray-600 font-semibold py-2 px-4 rounded cursor-not-allowed">
+                                        Signup Closed
                                     </button>
-                                </form>
+                                {% else %}
+                                    <form method="post" action="{% url 'signup:event_signup' event.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                                            Sign Up
+                                        </button>
+                                    </form>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     </div>
