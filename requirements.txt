@@ -10,11 +10,13 @@ dj-database-url==3.0.1
 Django==5.2.4
 django-tailwind-4==0.1.4
 docopt==0.6.2
+gunicorn==23.0.0
 idna==3.10
 Jinja2==3.1.6
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
+packaging==25.0
 pipreqs==0.4.13
 psycopg2-binary==2.9.10
 Pygments==2.19.2

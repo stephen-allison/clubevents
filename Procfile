@@ -1,0 +1,1 @@
+web: gunicorn SignupApp.wsgi --log-file -
