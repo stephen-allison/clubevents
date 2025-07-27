@@ -15,7 +15,7 @@
                     <a href="{% url 'signup:my_events_ics' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
                         Download Calendar
                     </a>
-                    <a href="{% url 'signup:calendar_feed' user.userprofile.calendar_uid %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+                    <a href="webcal://{{ request.get_host }}{% url 'signup:calendar_feed' user.userprofile.calendar_uid %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
                         Subscribe to Calendar
                     </a>
                 {% endif %}
