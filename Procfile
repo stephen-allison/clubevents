@@ -1,1 +1,1 @@
-web: gunicorn SignupApp.wsgi:application --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile -
+web: python manage.py runserver 0.0.0.0:$PORT
