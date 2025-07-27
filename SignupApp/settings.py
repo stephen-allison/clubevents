@@ -80,7 +80,6 @@ WSGI_APPLICATION = 'SignupApp.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        env_var='DATABASE_URL',
         default='postgresql://stephenallison@localhost:5432/signupapp',
         conn_max_age=600,
         conn_health_checks=True,
@@ -123,6 +122,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Production settings for Railway
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    DEBUG = False
+    ALLOWED_HOSTS = ['*.railway.app', 'localhost', '127.0.0.1']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
