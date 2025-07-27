@@ -140,6 +140,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Production settings for Railway
 if not os.environ.get('RAILWAY_SERVICE_ID'):
     DEBUG = True
+DEBUG = True
 
 # ALLOWED_HOSTS = ['*.railway.app', 'localhost', '127.0.0.1']
 ALLOWED_HOSTS = ['*']
