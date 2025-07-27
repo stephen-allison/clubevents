@@ -137,7 +137,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Production settings for Railway
 if os.environ.get('RAILWAY_SERVICE_ID'):
     DEBUG = True
-    ALLOWED_HOSTS = ['*.railway.app', 'localhost', '127.0.0.1']
+#    ALLOWED_HOSTS = ['*.railway.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
