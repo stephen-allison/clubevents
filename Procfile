@@ -1,1 +1,1 @@
-web: python create_admin.py && python manage.py collectstatic --noinput && && gunicorn SignupApp.wsgi:application --bind 0.0.0.0:$PORT
+web: python create_admin.py && python manage.py collectstatic --noinput && gunicorn SignupApp.wsgi:application --bind 0.0.0.0:$PORT
