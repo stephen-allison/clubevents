@@ -64,6 +64,27 @@ def event_signup(request, event_id):
     else:
         return redirect('signup:signups')
 
+
+@login_required
+def hx_event_signup(request, event_id):
+    event = Event.objects.get(id=event_id)
+
+    # Use get_or_create to prevent duplicates atomically
+    signup, created = Signup.objects.get_or_create(
+        user=request.user,
+        event=event,
+        defaults={
+            'signup_name': request.user.get_full_name() or request.user.username,
+            'signup_email': request.user.email,
+            'signup_date': datetime.date.today()
+        }
+    )
+    print(signup, created)
+    event.user_signup = signup
+
+    context = {'event': event}
+    return render(request, 'signup/event_card.html', context)
+
 @login_required
 def withdraw_signup(request, signup_id):
     # Get the signup and ensure it belongs to the current user
@@ -76,6 +97,16 @@ def withdraw_signup(request, signup_id):
         return redirect('signup:event_list_signups')
     else:
         return redirect('signup:signups')
+
+
+@login_required
+def hx_withdraw_signup(request, signup_id):
+    # Get the signup and ensure it belongs to the current user
+    signup = Signup.objects.get(id=signup_id, user=request.user)
+    signup.delete()
+    event = Event.objects.get(id=signup.event.id)
+    context = {'event': event}
+    return render(request, 'signup/event_card.html', context)
 
 def event_list_with_signups(request):
     # Get today's date in London timezone
