@@ -32,7 +32,7 @@ class PreRegistration(models.Model):
     activated will be set tyo True when someone uses this data to
         qctivate a 'full' account
     '''
-    ea_urn = models.CharField(max_length=64, unique=True, editable=True)
+    ea_urn = models.CharField(max_length=64, unique=True, editable=True, null=True)
     first_name = models.CharField(max_length=512)
     last_name = models.CharField(max_length=512)
     email = models.EmailField()

@@ -11,6 +11,7 @@ urlpatterns = [
     path('my-events/', views.my_events, name='my_events'),
     path('my-events/calendar.ics', views.my_events_ics, name='my_events_ics'),
     path('calendar/<uuid:uid>.ics', views.calendar_feed, name='calendar_feed'),
+    path('event/<int:event_id>/participants/', views.participants_for_event, name='participants_for_event'),
     path('activate/', views.ea_urn_lookup_view, name='activate'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='signup:login'), name='logout'),

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+{% load tailwind_tags %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% tailwind_css %}
+    <title>Participants for {{ event.name }} - SignupApp</title>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Participants for {{ event.name }}</h1>
+                <p class="text-gray-600 mt-1">{{ event.date }} | {{ participant_count }} participant{{ participant_count|pluralize }}</p>
+            </div>
+            <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                Back to Events
+            </a>
+        </div>
+        
+        {% if users %}
+            <div class="bg-white rounded-lg shadow border overflow-hidden">
+                <table class="w-full table-fixed divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="w-1/3 px-12 py-8 text-left text-lg font-bold text-gray-700 uppercase tracking-wider">
+                                Full Name
+                            </th>
+                            <th class="w-1/3 px-12 py-8 text-left text-lg font-bold text-gray-700 uppercase tracking-wider">
+                                EA URN
+                            </th>
+                            <th class="w-1/3 px-12 py-8 text-left text-lg font-bold text-gray-700 uppercase tracking-wider">
+                                Birth Date
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for user in users %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="w-1/3 px-12 py-10 text-xl font-semibold text-gray-900">
+                                    {% if user.full_name %}
+                                        {{ user.full_name }}
+                                    {% elif user.first_name or user.last_name %}
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    {% else %}
+                                        {{ user.username }}
+                                    {% endif %}
+                                </td>
+                                <td class="w-1/3 px-12 py-10 text-xl text-gray-700">
+                                    {% if user.ea_urn %}
+                                        {{ user.ea_urn }}
+                                    {% else %}
+                                        <span class="text-gray-400">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="w-1/3 px-12 py-10 text-xl text-gray-700">
+                                    {% if user.birth_date %}
+                                        {{ user.birth_date|date:"d M Y" }}
+                                    {% else %}
+                                        <span class="text-gray-400">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="bg-white p-6 rounded-lg shadow border text-center">
+                <p class="text-gray-500">No participants have signed up for this event yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
