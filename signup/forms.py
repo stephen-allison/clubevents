@@ -1,42 +1,68 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Event
+from .models import Event, ClubUser
 
-class MultiEventSignupForm(forms.Form):
-    name = forms.CharField(
-        max_length=100,
+# forms.py
+from django import forms
+from django.contrib.auth import get_user_model
+from .models import PreRegistration
+
+
+class EAURNLookupForm(forms.Form):
+    ea_urn = forms.CharField(
+        label="England Athletics URN",
+        max_length=64,
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-hoops-red'
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500',
+            'placeholder': 'Enter your EA URN'
         })
     )
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-hoops-red'
-        })
-    )
-    events = forms.ModelMultipleChoiceField(
-        queryset=Event.objects.all(),
-        widget=forms.CheckboxSelectMultiple(attrs={
-            'class': 'space-y-2'
-        })
-    )
+
+    def clean_ea_urn(self):
+        ea_urn = self.cleaned_data['ea_urn']
+
+        # Check if PreRegistration exists with this EA URN
+        try:
+            PreRegistration.objects.get(ea_urn=ea_urn)
+        except PreRegistration.DoesNotExist:
+            raise forms.ValidationError("No pre-registration found with this EA URN.")
+
+        # Check if user already exists with this EA URN
+        User = get_user_model()
+        if User.objects.filter(ea_urn=ea_urn).exists():
+            raise forms.ValidationError("A user account already exists with this EA URN.")
+
+        return ea_urn
+
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    
     class Meta:
-        model = User
-        fields = ("username", "email", "password1", "password2")
-    
-    def __init__(self, *args, **kwargs):
+        model = ClubUser
+        fields = ("username", "first_name", "last_name", "birth_date", "email", "password1", "password2")
+
+    def __init__(self, preregistration=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Apply styling to all fields
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-hoops-red'
-    
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data["email"]
-        if commit:
-            user.save()
-        return user
+            field.widget.attrs['class'] = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'
+
+        # Make birth_date required and add date widget
+        self.fields['birth_date'].required = True
+        self.fields['birth_date'].widget = forms.DateInput(
+            attrs={
+                'type': 'date',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'
+            }
+        )
+
+        # Pre-fill fields if preregistration data is provided
+        if preregistration:
+            self.fields['first_name'].initial = preregistration.first_name
+            self.fields['last_name'].initial = preregistration.last_name
+            self.fields['email'].initial = preregistration.email
+            self.fields['birth_date'].initial = preregistration.birth_date
+
+            # Optionally suggest a username based on their name
+            suggested_username = f"{preregistration.first_name.lower()}.{preregistration.last_name.lower()}"
+            self.fields['username'].initial = suggested_username

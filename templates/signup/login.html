@@ -9,10 +9,8 @@
     {% tailwind_css %}
 </head>
 
-<body class="bg-gray-50 p-8">
-    <div class="container mx-auto px-4">
-        <div class="flex items-center justify-center min-h-screen">
-            <div class="max-w-md w-full bg-white rounded-lg shadow-md p-6">
+<body class="bg-gray-50">
+    <div class="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
                 <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
                 
                 {% if form.errors %}
@@ -50,11 +48,9 @@
                 <div class="mt-4 text-center">
                     <p class="text-sm text-gray-600">
                         Don't have an account? 
-                        <a href="{% url 'signup:register' %}" class="text-blue-600 hover:text-blue-500">Register here</a>
+                        <a href="{% url 'signup:activate' %}" class="text-blue-600 hover:text-blue-500">Register here</a>
                     </p>
                 </div>
-            </div>
-        </div>
     </div>
 </body>
 </html>

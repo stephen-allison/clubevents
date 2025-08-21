@@ -17,10 +17,21 @@
                     <a href="{% url 'signup:my_events' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
                         My Events
                     </a>
+                    <form method="post" action="{% url 'signup:logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                         <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">
+                            Logout
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="get" action="{% url 'signup:login' %}" style="display: inline;">
+                        {% csrf_token %}
+                         <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">
+                            Login
+                        </button>
+                    </form>
                 {% endif %}
-                <a href="{% url 'signup:index' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-                    Back to Home
-                </a>
+
             </div>
         </div>
         

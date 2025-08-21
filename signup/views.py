@@ -4,13 +4,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.urls import reverse_lazy
+from django.contrib.auth import get_user_model
+from django.views.decorators.cache import never_cache
+from django.contrib import messages
+from django.urls import reverse_lazy, reverse
 from django.db.models import Prefetch
 from django.utils import timezone
 import pytz
 
-from .forms import MultiEventSignupForm, CustomUserCreationForm
-from .models import Event, Signup, UserProfile
+from .forms import CustomUserCreationForm, EAURNLookupForm
+from .models import Event, PreRegistration, Signup
+from .models.user import UserProfile
 
 # Create your views here.
 
@@ -25,50 +29,70 @@ def event(request, event_id):
     return HttpResponse(f'Event {event.name} with id {event_id} is {event}.')
 
 
-
-def register_view(request):
+def ea_urn_lookup_view(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = EAURNLookupForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            ea_urn = form.cleaned_data['ea_urn']
+            # Redirect to registration form with EA URN in URL
+            return redirect('signup:register_with_preregistration', ea_urn=ea_urn)
+    else:
+        form = EAURNLookupForm()
+
+    return render(request, 'signup/eaurn_lookup.html', {'form': form})
+
+
+def register_with_preregistration_view(request, ea_urn):
+    # Get the preregistration data
+    try:
+        preregistration = PreRegistration.objects.get(ea_urn=ea_urn)
+    except PreRegistration.DoesNotExist:
+        messages.error(request, 'Invalid EA URN or pre-registration not found.')
+        return redirect('ea_urn_lookup')
+
+    # Check if user already exists
+    User = get_user_model()
+    if User.objects.filter(ea_urn=ea_urn).exists():
+        messages.error(request, 'A user account already exists with this EA URN.')
+        return redirect('login')
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(preregistration=preregistration, data=request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.ea_urn = ea_urn  # Set the EA URN from the lookup
+            user.save()
+
+            preregistration.activated = True
+            preregistration.save()
+
+            # Log the user in
             login(request, user)
+            messages.success(request, 'Registration successful!')
             return redirect('signup:event_list_signups')
     else:
-        form = CustomUserCreationForm()
-    return render(request, 'signup/register.html', {'form': form})
+        form = CustomUserCreationForm(preregistration=preregistration)
+
+    return render(request, 'signup/register_with_preregistration.html', {
+        'form': form,
+        'preregistration': preregistration
+    })
 
 class CustomLoginView(LoginView):
     template_name = 'signup/login.html'
     redirect_authenticated_user = True
     success_url = reverse_lazy('signup:event_list_signups')
 
-@login_required
-def event_signup(request, event_id):
-    event = Event.objects.get(id=event_id)
-    
-    # Use get_or_create to prevent duplicates atomically
-    signup, created = Signup.objects.get_or_create(
-        user=request.user,
-        event=event,
-        defaults={
-            'signup_name': request.user.get_full_name() or request.user.username,
-            'signup_email': request.user.email,
-            'signup_date': datetime.date.today()
-        }
-    )
-    
-    # Check where the request came from to determine redirect
-    referer = request.META.get('HTTP_REFERER', '')
-    if 'event-signups' in referer:
-        return redirect('signup:event_list_signups')
-    else:
-        return redirect('signup:signups')
 
-
-@login_required
 def hx_event_signup(request, event_id):
-    event = Event.objects.get(id=event_id)
+    if not request.user.is_authenticated:
+        redirect_to = reverse_lazy('signup:login')
+        print(f'not logged in , redirecting to {redirect_to}')
+        response = HttpResponse('Unauthorized', status=401)
+        response['HX-Redirect'] = redirect_to
+        return response
 
+    event = Event.objects.get(id=event_id)
     # Use get_or_create to prevent duplicates atomically
     signup, created = Signup.objects.get_or_create(
         user=request.user,
@@ -85,22 +109,14 @@ def hx_event_signup(request, event_id):
     context = {'event': event}
     return render(request, 'signup/event_card.html', context)
 
-@login_required
-def withdraw_signup(request, signup_id):
-    # Get the signup and ensure it belongs to the current user
-    signup = Signup.objects.get(id=signup_id, user=request.user)
-    signup.delete()
-    
-    # Check where the request came from to determine redirect
-    referer = request.META.get('HTTP_REFERER', '')
-    if 'event-signups' in referer:
-        return redirect('signup:event_list_signups')
-    else:
-        return redirect('signup:signups')
 
-
-@login_required
 def hx_withdraw_signup(request, signup_id):
+    if not request.user.is_authenticated:
+        redirect_to = reverse_lazy('signup:login')
+        print(f'not logged in , redirecting to {redirect_to}')
+        response = HttpResponse('Unauthorized', status=401)
+        response['HX-Redirect'] = redirect_to
+        return response
     # Get the signup and ensure it belongs to the current user
     signup = Signup.objects.get(id=signup_id, user=request.user)
     signup.delete()
@@ -108,6 +124,8 @@ def hx_withdraw_signup(request, signup_id):
     context = {'event': event}
     return render(request, 'signup/event_card.html', context)
 
+
+@never_cache
 def event_list_with_signups(request):
     # Get today's date in London timezone
     london_tz = pytz.timezone('Europe/London')
@@ -116,7 +134,9 @@ def event_list_with_signups(request):
     events = Event.objects.filter(date__gte=today).order_by('date').prefetch_related(
         Prefetch('signup_set', queryset=Signup.objects.order_by('-signup_date', '-id'))
     )
-    
+
+    print(f'user is authenticated? {request.user.is_authenticated}')
+
     # Add user signup info and cutoff status to each event if authenticated
     if request.user.is_authenticated:
         user_signups = Signup.objects.filter(user=request.user).select_related('event')
@@ -137,7 +157,9 @@ def event_list_with_signups(request):
     context = {'events': events}
     return render(request, 'signup/event_list_signups.html', context)
 
+
 @login_required
+@never_cache
 def my_events(request):
     # Get today's date in London timezone
     london_tz = pytz.timezone('Europe/London')

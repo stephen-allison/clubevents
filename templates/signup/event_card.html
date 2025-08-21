@@ -16,14 +16,13 @@
             </div>
             {% if user.is_authenticated %}
                 {% if event.user_signup %}
-                    <!--<form method="post" action="{% url 'signup:withdraw_signup' event.user_signup.id %}" style="display: inline;">-->
                     <form hx-post="{% url 'signup:hx_withdraw_signup' event.user_signup.id %}"
                           hx-disabled-elt=""
                           hx-target="closest .event-card"
                           hx-swap="outerHTML"
                           style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold py-2 px-4 rounded" onclick="return confirm('Are you sure you want to withdraw from this event?')">
+                        <button type="submit" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold py-2 px-4 rounded">
                             Withdraw
                         </button>
                     </form>
