@@ -159,6 +159,15 @@ def event_list_with_signups(request):
 
 
 @login_required
+def my_details(request):
+    """Show user's profile details"""
+    context = {
+        'user': request.user
+    }
+    return render(request, 'signup/my_details.html', context)
+
+
+@login_required
 @never_cache
 def my_events(request):
     # Get today's date in London timezone

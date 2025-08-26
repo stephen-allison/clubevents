@@ -1,0 +1,45 @@
+{% extends 'signup/base.html' %}
+
+{% block title %}My Details - SignupApp{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">My Details</h1>
+</div>
+
+<div class="bg-white rounded-lg shadow border">
+    <div class="p-6 sm:p-8">
+        <div class="space-y-6">
+            <!-- Full Name -->
+            <div class="border-b border-gray-200 pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <p class="text-lg text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+            </div>
+
+            <!-- EA URN -->
+            <div class="border-b border-gray-200 pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">EA URN</label>
+                <p class="text-lg text-gray-900">{{ user.ea_urn|default:"Not provided" }}</p>
+            </div>
+
+            <!-- Email Address -->
+            <div class="pb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <p class="text-lg text-gray-900">{{ user.email|default:"Not provided" }}</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'signup:my_events' %}" 
+               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-hoops-red hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                View My Events
+            </a>
+            <a href="{% url 'signup:event_list_signups' %}" 
+               class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                Browse All Events
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

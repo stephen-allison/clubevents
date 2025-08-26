@@ -8,6 +8,7 @@ urlpatterns = [
     path('signuphx/<int:event_id>/signup/', views.hx_event_signup, name='hx_event_signup'),
     path('signuphx/<int:signup_id>/withdraw/', views.hx_withdraw_signup, name='hx_withdraw_signup'),
     path('event-signups/', views.event_list_with_signups, name='event_list_signups'),
+    path('my-details/', views.my_details, name='my_details'),
     path('my-events/', views.my_events, name='my_events'),
     path('my-events/calendar.ics', views.my_events_ics, name='my_events_ics'),
     path('calendar/<uuid:uid>.ics', views.calendar_feed, name='calendar_feed'),
