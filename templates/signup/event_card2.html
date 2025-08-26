@@ -1,0 +1,86 @@
+<!-- Mobile-Optimized Event Card Template -->
+<div class="bg-white p-3 sm:p-6 mb-4 rounded-lg shadow border event-card">
+    <!-- Event Details Section -->
+    <div class="pb-3 mb-4 border-b border-gray-200 space-y-2">
+        <h2 class="text-lg sm:text-2xl font-semibold text-gray-800">{{ event.name }}</h2>
+        <p class="text-gray-600 text-sm sm:text-base">{{ event.date }}</p>
+
+        {% if event.location %}
+            <p class="text-gray-600 text-sm">📍 {{ event.location }}</p>
+        {% endif %}
+
+        {% if event.description %}
+            <p class="text-gray-700 text-sm sm:text-base leading-relaxed">{{ event.description }}</p>
+        {% endif %}
+
+        {% if event.website %}
+            <a href="{{ event.website }}" target="_blank"
+               class="text-blue-600 hover:text-blue-800 text-sm break-all inline-block">
+                🌐 Event Website
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Signup Section -->
+    <div class="space-y-3">
+        <!-- Signup Count & Action Button -->
+        <div class="flex flex-col space-y-2 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
+            <h3 class="text-sm sm:text-lg font-medium text-gray-700">
+                {{ event.signup_set.count }} people signed up
+            </h3>
+
+            {% if user.is_authenticated %}
+                {% if event.user_signup %}
+                    <form hx-post="{% url 'signup:hx_withdraw_signup' event.user_signup.id %}"
+                          hx-disabled-elt=""
+                          hx-target="closest .event-card"
+                          hx-swap="outerHTML"
+                          class="w-full sm:w-auto">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="w-full sm:w-auto bg-white border border-gray-300 text-gray-600 font-semibold py-2 px-4 rounded hover:bg-gray-50">
+                            Withdraw
+                        </button>
+                    </form>
+                {% else %}
+                    {% if event.signup_closed %}
+                        <button disabled
+                                class="w-full sm:w-auto bg-gray-400 text-gray-600 font-semibold py-2 px-4 rounded cursor-not-allowed">
+                            Signup Closed
+                        </button>
+                    {% else %}
+                        <form hx-post="{% url 'signup:hx_event_signup' event.id %}"
+                              hx-disabled-elt=""
+                              hx-target="closest .event-card"
+                              hx-swap="outerHTML"
+                              class="w-full sm:w-auto">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="w-full sm:w-auto bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                                Sign Up
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Participants List -->
+        {% if event.signup_set.exists %}
+            <div class="bg-gray-50 rounded border">
+                {% for signup in event.signup_set.all %}
+                    <div class="px-3 py-2 border-b border-gray-200 last:border-b-0">
+                        <span class="text-sm text-gray-800">{{ signup.signup_name }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <a href="{% url 'signup:participants_for_event' event.id %}"
+               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center w-full sm:w-auto text-sm">
+                View All Participants
+            </a>
+        {% else %}
+            <p class="text-gray-500 italic text-sm">No one has signed up yet.</p>
+        {% endif %}
+    </div>
+</div>

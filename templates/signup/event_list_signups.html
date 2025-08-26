@@ -1,47 +1,22 @@
-<!DOCTYPE html>
-{% load tailwind_tags %}
+{% extends 'signup/base.html' %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    {% tailwind_css %}
-    <script src="{% static 'js/htmx.min.js' %}"></script>
-    <title>Event Signups - SignupApp</title>
-</head>
-<body class="bg-gray-50 p-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Upcoming events</h1>
-            <div class="space-x-4">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'signup:my_events' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-                        My Events
-                    </a>
-                    <form method="post" action="{% url 'signup:logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                         <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">
-                            Logout
-                        </button>
-                    </form>
-                    {% else %}
-                    <form method="get" action="{% url 'signup:login' %}" style="display: inline;">
-                        {% csrf_token %}
-                         <button type="submit" class="text-red-600 hover:text-red-800 underline bg-transparent border-none cursor-pointer">
-                            Login
-                        </button>
-                    </form>
-                {% endif %}
 
-            </div>
-        </div>
-        
-        {% for event in events %}
-            {% include 'signup/event_card.html' with event=event %}
-        {% empty %}
-            <div class="bg-white p-6 rounded-lg shadow border text-center">
-                <p class="text-gray-500">No events available.</p>
-            </div>
-        {% endfor %}
+{% block title %}Event Signups - SignupApp{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Upcoming events</h2>
+</div>
+
+{% for event in events %}
+    {% include 'signup/event_card2.html' with event=event %}
+{% empty %}
+    <div class="bg-white p-6 rounded-lg shadow border text-center">
+        <p class="text-gray-500">No events available.</p>
     </div>
-</body>
-</html>
+{% endfor %}
+{% endblock %}

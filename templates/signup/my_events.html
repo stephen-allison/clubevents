@@ -1,61 +1,141 @@
-<!DOCTYPE html>
-{% load tailwind_tags %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    {% tailwind_css %}
-    <title>My Events - SignupApp</title>
-</head>
-<body class="bg-gray-50 p-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">My Events</h1>
-            <div class="space-x-4">
-                {% if signups %}
-                    <a href="{% url 'signup:my_events_ics' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
-                        Download Calendar
-                    </a>
-                    <a href="webcal://{{ request.get_host }}{% url 'signup:calendar_feed' user.user_uuid %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-                        Subscribe to Calendar
-                    </a>
+{% extends 'signup/base.html' %}
+
+{% block title %}My Events - SignupApp{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">My Events</h1>
+</div>
+
+<!-- Floating Calendar Button -->
+{% if signups %}
+<div style="position: fixed; bottom: 16px; right: 16px; z-index: 1000;">
+    {% if supports_webcal %}
+        <a href="webcal://{{ request.get_host }}{% url 'signup:calendar_feed' user.user_uuid %}" 
+           style="display: flex; align-items: center; gap: 8px; background-color: #dc2626; color: white; padding: 10px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease;"
+           onmouseover="this.style.backgroundColor='#b91c1c'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.backgroundColor='#dc2626'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+           id="webcal-link">
+            📅
+            <span>
+                {% if 'iphone' in user_agent or 'ipad' in user_agent %}
+                    Calendar
+                {% else %}
+                    Subscribe
                 {% endif %}
-                <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-                    Back to All Events
-                </a>
-            </div>
-        </div>
-        
-        {% if signups %}
-            <div class="bg-white rounded-lg shadow border">
-                {% for signup in signups %}
-                    <div class="p-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-xl font-semibold text-gray-800">{{ signup.event.name }}</h3>
-                                <p class="text-gray-600">{{ signup.event.date }}</p>
-                                {% if signup.event.location %}
-                                    <p class="text-gray-600 text-sm">📍 {{ signup.event.location }}</p>
-                                {% endif %}
-                                {% if signup.event.description %}
-                                    <p class="text-gray-700 text-sm mt-1">{{ signup.event.description }}</p>
-                                {% endif %}
-                                {% if signup.event.website %}
-                                    <a href="{{ signup.event.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">🌐 Website</a>
-                                {% endif %}
-                            </div>
-                            <span class="text-sm text-gray-500">Signed up: {{ signup.signup_date }}</span>
-                        </div>
+            </span>
+        </a>
+    {% else %}
+        <a href="{% url 'signup:my_events_ics' %}" 
+           style="display: flex; align-items: center; gap: 8px; background-color: #dc2626; color: white; padding: 10px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease;"
+           onmouseover="this.style.backgroundColor='#b91c1c'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)'"
+           onmouseout="this.style.backgroundColor='#dc2626'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'">
+            📅
+            <span>Download</span>
+        </a>
+    {% endif %}
+    <!-- Hidden JS-detected webcal link -->
+    <a href="webcal://{{ request.get_host }}{% url 'signup:calendar_feed' user.user_uuid %}" 
+       style="display: none; align-items: center; gap: 8px; background-color: #dc2626; color: white; padding: 10px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease;"
+       onmouseover="this.style.backgroundColor='#b91c1c'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)'"
+       onmouseout="this.style.backgroundColor='#dc2626'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+       id="webcal-link-js">
+        📅
+        <span>Subscribe</span>
+    </a>
+</div>
+{% endif %}
+
+{% if signups %}
+    <div class="bg-white rounded-lg shadow border">
+        {% for signup in signups %}
+            <div class="p-4 sm:p-6 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
+                    <div class="flex-1">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-800">{{ signup.event.name }}</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">{{ signup.event.date }}</p>
+                        {% if signup.event.location %}
+                            <p class="text-gray-600 text-sm">📍 {{ signup.event.location }}</p>
+                        {% endif %}
+                        {% if signup.event.description %}
+                            <p class="text-gray-700 text-sm mt-1">{{ signup.event.description }}</p>
+                        {% endif %}
+                        {% if signup.event.website %}
+                            <a href="{{ signup.event.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm break-all">🌐 Website</a>
+                        {% endif %}
                     </div>
-                {% endfor %}
+                    <span class="text-sm text-gray-500 flex-shrink-0 mt-2 sm:mt-0">Signed up: {{ signup.signup_date }}</span>
+                </div>
             </div>
-        {% else %}
-            <div class="bg-white p-6 rounded-lg shadow border text-center">
-                <p class="text-gray-500">You're not signed up for any upcoming events.</p>
-                <a href="{% url 'signup:event_list_signups' %}" class="mt-4 inline-block bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-                    Browse Events
-                </a>
-            </div>
-        {% endif %}
+        {% endfor %}
     </div>
-</body>
-</html>
+{% else %}
+    <div class="bg-white p-6 rounded-lg shadow border text-center">
+        <p class="text-gray-500">You're not signed up for any upcoming events.</p>
+        <a href="{% url 'signup:event_list_signups' %}" class="mt-4 inline-block bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+            Browse Events
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced webcal support detection with JavaScript
+    function detectWebcalSupport() {
+        // If server-side already detected support, don't override
+        const serverDetectedSupport = {{ supports_webcal|yesno:"true,false" }};
+        if (serverDetectedSupport) return;
+        
+        // Try JavaScript detection for browsers not caught by server-side
+        try {
+            // Test if webcal protocol is registered
+            const testLink = document.createElement('a');
+            testLink.href = 'webcal://test.example.com';
+            
+            // Some browsers that support webcal but weren't caught server-side
+            const userAgent = navigator.userAgent.toLowerCase();
+            const hasWebcalSupport = (
+                testLink.protocol === 'webcal:' ||
+                userAgent.includes('chrome') && userAgent.includes('mac') ||
+                userAgent.includes('safari') && userAgent.includes('mac')
+            );
+            
+            if (hasWebcalSupport) {
+                // Show the JavaScript-detected webcal link
+                const jsWebcalLink = document.getElementById('webcal-link-js');
+                const currentButton = jsWebcalLink?.parentElement.querySelector('a[style*="display: flex"]');
+                
+                if (jsWebcalLink && currentButton) {
+                    // Hide current button and show webcal button
+                    currentButton.style.display = 'none';
+                    jsWebcalLink.style.display = 'flex';
+                }
+            }
+        } catch (e) {
+            // Webcal detection failed, stick with download option
+            console.log('Webcal detection failed:', e);
+        }
+    }
+    
+    // Add helpful tooltips or click handlers
+    const webcalLinks = document.querySelectorAll('a[href^="webcal://"]');
+    webcalLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // On some browsers, provide fallback instruction
+            setTimeout(() => {
+                const userAgent = navigator.userAgent.toLowerCase();
+                if (!userAgent.includes('iphone') && !userAgent.includes('ipad') && !userAgent.includes('mac')) {
+                    // For non-Apple devices, show a helpful message
+                    alert('If the calendar didn\'t open automatically, copy this link and paste it into your calendar app\'s subscription feature:\\n\\n' + this.href);
+                }
+            }, 1000);
+        });
+    });
+    
+    // Run detection
+    detectWebcalSupport();
+});
+</script>
+{% endblock %}

@@ -1,72 +1,72 @@
-<div class="bg-white p-6 mb-6 rounded-lg shadow border event-card">
+<div class="bg-white p-4 sm:p-6 mb-6 rounded-lg shadow border event-card">
     <div class="border-b border-gray-200 pb-4 mb-4">
-        <div class="flex justify-between items-start">
-            <div>
-                <h2 class="text-2xl font-semibold text-gray-800">{{ event.name }}</h2>
-                <p class="text-gray-600 mt-1">{{ event.date }}</p>
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
+            <div class="flex-1">
+                <h2 class="text-xl sm:text-2xl font-semibold text-gray-800">{{ event.name }}</h2>
+                <p class="text-gray-600 mt-1 text-sm sm:text-base">{{ event.date }}</p>
                 {% if event.location %}
                     <p class="text-gray-600 text-sm">📍 {{ event.location }}</p>
                 {% endif %}
                 {% if event.description %}
-                    <p class="text-gray-700 mt-2">{{ event.description }}</p>
+                    <p class="text-gray-700 mt-2 text-sm sm:text-base">{{ event.description }}</p>
                 {% endif %}
                 {% if event.website %}
-                    <a href="{{ event.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">🌐 Event Website</a>
+                    <a href="{{ event.website }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm break-all">🌐 Event Website</a>
                 {% endif %}
             </div>
-            {% if user.is_authenticated %}
-                {% if event.user_signup %}
-                    <form hx-post="{% url 'signup:hx_withdraw_signup' event.user_signup.id %}"
-                          hx-disabled-elt=""
-                          hx-target="closest .event-card"
-                          hx-swap="outerHTML"
-                          style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold py-2 px-4 rounded">
-                            Withdraw
-                        </button>
-                    </form>
-                {% else %}
-                    {% if event.signup_closed %}
-                        <button disabled class="bg-gray-400 text-gray-600 font-semibold py-2 px-4 rounded cursor-not-allowed">
-                            Signup Closed
-                        </button>
-                    {% else %}
-                            <form hx-post="{% url 'signup:hx_event_signup' event.id %}"
-                                  hx-disabled-elt=""
-                                  hx-target="closest .event-card"
-                                  hx-swap="outerHTML"
-                                  style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-                                Sign Up
-                            </button>
-                        </form>
-                    {% endif %}
-                {% endif %}
-            {% endif %}
         </div>
     </div>
 
     <div>
-        <h3 class="text-lg font-medium text-gray-700 mb-3">
-            Signed Up ({{ event.signup_set.count }} people)
-        </h3>
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 space-y-2 sm:space-y-0">
+            <h3 class="text-base sm:text-lg font-medium text-gray-700">
+                {{ event.signup_set.count }} people signed up
+            </h3>
+            {% if user.is_authenticated %}
+                    {% if event.user_signup %}
+                        <form hx-post="{% url 'signup:hx_withdraw_signup' event.user_signup.id %}"
+                              hx-disabled-elt=""
+                              hx-target="closest .event-card"
+                              hx-swap="outerHTML">
+                            {% csrf_token %}
+                            <button type="submit" class="w-1/2 sm:w-auto bg-white text-gray-600 font-semibold py-2 px-4 rounded">
+                                Withdraw
+                            </button>
+                        </form>
+                    {% else %}
+                        {% if event.signup_closed %}
+                            <button disabled class="w-full sm:w-auto bg-gray-400 text-gray-600 font-semibold py-2 px-4 rounded cursor-not-allowed">
+                                Signup Closed
+                            </button>
+                        {% else %}
+                                <form hx-post="{% url 'signup:hx_event_signup' event.id %}"
+                                      hx-disabled-elt=""
+                                      hx-target="closest .event-card"
+                                      hx-swap="outerHTML">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full sm:w-auto bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+                                    Sign Up
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+            {% endif %}
+        </div>
 
         {% if event.signup_set.exists %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
                 {% for signup in event.signup_set.all %}
                     <div class="bg-gray-50 p-3 rounded border">
-                        <div class="font-medium text-gray-800">{{ signup.signup_name }}</div>
+                        <div class="font-medium text-gray-800 text-sm sm:text-base">{{ signup.signup_name }}</div>
                         <div class="text-xs text-gray-500 mt-1">Signed up: {{ signup.signup_date }}</div>
                     </div>
                 {% endfor %}
             </div>
-            <a href="{% url 'signup:participants_for_event' event.id %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+            <a href="{% url 'signup:participants_for_event' event.id %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center w-full sm:w-auto">
                 View Participants
             </a>
         {% else %}
-            <p class="text-gray-500 italic">No one has signed up for this event yet.</p>
+            <p class="text-gray-500 italic text-sm sm:text-base">No one has signed up for this event yet.</p>
         {% endif %}
     </div>
 </div>

@@ -3,23 +3,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% tailwind_css %}
     <title>Participants for {{ event.name }} - SignupApp</title>
 </head>
-<body class="bg-gray-50 p-8">
+<body class="bg-gray-50 p-4 sm:p-8">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">Participants for {{ event.name }}</h1>
-                <p class="text-gray-600 mt-1">{{ event.date }} | {{ participant_count }} participant{{ participant_count|pluralize }}</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Participants for {{ event.name }}</h1>
+                <p class="text-gray-600 mt-1 text-sm sm:text-base">{{ event.date }} | {{ participant_count }} participant{{ participant_count|pluralize }}</p>
             </div>
-            <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+            <a href="{% url 'signup:event_list_signups' %}" class="bg-hoops-red hover:bg-red-600 text-white font-semibold py-2 px-4 rounded text-center">
                 Back to Events
             </a>
         </div>
         
         {% if users %}
-            <div class="bg-white rounded-lg shadow border overflow-hidden">
+            <!-- Desktop Table View -->
+            <div class="hidden lg:block bg-white rounded-lg shadow border overflow-hidden">
                 <table class="w-full table-fixed divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
@@ -64,6 +66,48 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            
+            <!-- Mobile Card View -->
+            <div class="lg:hidden space-y-4">
+                {% for user in users %}
+                    <div class="bg-white rounded-lg shadow border p-6">
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Full Name</span>
+                                <div class="text-lg font-semibold text-gray-900 mt-1">
+                                    {% if user.full_name %}
+                                        {{ user.full_name }}
+                                    {% elif user.first_name or user.last_name %}
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    {% else %}
+                                        {{ user.username }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">EA URN</span>
+                                <div class="text-lg text-gray-700 mt-1">
+                                    {% if user.ea_urn %}
+                                        {{ user.ea_urn }}
+                                    {% else %}
+                                        <span class="text-gray-400">-</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">Birth Date</span>
+                                <div class="text-lg text-gray-700 mt-1">
+                                    {% if user.birth_date %}
+                                        {{ user.birth_date|date:"d M Y" }}
+                                    {% else %}
+                                        <span class="text-gray-400">-</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         {% else %}
             <div class="bg-white p-6 rounded-lg shadow border text-center">

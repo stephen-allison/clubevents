@@ -107,7 +107,7 @@ def hx_event_signup(request, event_id):
     event.user_signup = signup
 
     context = {'event': event}
-    return render(request, 'signup/event_card.html', context)
+    return render(request, 'signup/event_card2.html', context)
 
 
 def hx_withdraw_signup(request, signup_id):
@@ -122,7 +122,7 @@ def hx_withdraw_signup(request, signup_id):
     signup.delete()
     event = Event.objects.get(id=signup.event.id)
     context = {'event': event}
-    return render(request, 'signup/event_card.html', context)
+    return render(request, 'signup/event_card2.html', context)
 
 
 @never_cache
@@ -171,7 +171,20 @@ def my_events(request):
         event__date__gte=today
     ).select_related('event').order_by('event__date')
     
-    context = {'signups': user_signups}
+    # Detect webcal support based on user agent
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    supports_webcal = (
+        'iphone' in user_agent or 
+        'ipad' in user_agent or 
+        'macintosh' in user_agent or
+        'mac os x' in user_agent
+    )
+    
+    context = {
+        'signups': user_signups,
+        'supports_webcal': supports_webcal,
+        'user_agent': user_agent
+    }
     return render(request, 'signup/my_events.html', context)
 
 @login_required
