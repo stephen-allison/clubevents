@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'signup.apps.SignupConfig',
     'tailwind',
-    'theme'
+    'theme',
+    'django_q'
 ]
 
 MIDDLEWARE = [

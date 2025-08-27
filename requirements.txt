@@ -8,6 +8,8 @@ click==8.2.1
 cookiecutter==2.6.0
 dj-database-url==3.0.1
 Django==5.2.4
+django-picklefield==3.3
+django-q2==1.8.0
 django-tailwind-4==0.1.4
 docopt==0.6.2
 gunicorn==23.0.0

@@ -12,9 +12,9 @@ from django.db.models import Prefetch
 from django.utils import timezone
 import pytz
 
-from .forms import CustomUserCreationForm, EAURNLookupForm
-from .models import Event, PreRegistration, Signup
-from .models.user import UserProfile
+from ..forms import CustomUserCreationForm, EAURNLookupForm
+from ..models import Event, PreRegistration, Signup
+from ..models.user import UserProfile
 
 # Create your views here.
 
