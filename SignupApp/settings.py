@@ -102,6 +102,8 @@ DATABASES = {
 }
 
 
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -166,3 +168,22 @@ TAILWIND_APP_NAME = 'theme'
 LOGIN_URL = '/signup/login/'
 LOGIN_REDIRECT_URL = '/signup/event-signups/'
 LOGOUT_REDIRECT_URL = '/signup/'
+
+Q_CLUSTER = {
+    'name': 'SignupApp',
+    'workers': 1,
+    'timeout': 300,
+    'retry': 3600,
+    'orm': 'default'  # Uses PostgreSQL database
+}
+
+
+try:
+    from .local_settings import *
+except ImportError:
+    EMAIL_HOST = os.getenv('EMAIL_HOST')
+    EMAIL_PORT = os.getenv('EMAIL_PORT')
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = 'your-app-password'
+    EMAIL_USE_TLS = True
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')

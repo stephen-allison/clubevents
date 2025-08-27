@@ -16,6 +16,7 @@ from ..forms import CustomUserCreationForm, EAURNLookupForm
 from ..models import Event, PreRegistration, Signup
 from ..models.user import UserProfile
 
+import signup.mail as mail
 # Create your views here.
 
 def index(request):
@@ -105,6 +106,8 @@ def hx_event_signup(request, event_id):
     )
     print(signup, created)
     event.user_signup = signup
+
+    mail.send_basic(event.name, event.date, request.user.email)
 
     context = {'event': event}
     return render(request, 'signup/event_card2.html', context)
