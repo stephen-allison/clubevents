@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'signup.apps.SignupConfig',
     'tailwind',
     'theme',
-    'django_q'
+    'django_q',
+    'anymail'
 ]
 
 MIDDLEWARE = [
@@ -178,7 +179,9 @@ Q_CLUSTER = {
 }
 
 # Email backend settings for better connection handling
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+
 EMAIL_TIMEOUT = 60
 try:
     from .local_settings import *
@@ -189,3 +192,8 @@ except ImportError:
     EMAIL_HOST_PASSWORD = 'your-app-password'
     EMAIL_USE_TLS = True
     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+    RESEND_KEY = os.getenv('RESEND_KEY')
+
+ANYMAIL = {
+    'RESEND_API_KEY': RESEND_KEY
+}
