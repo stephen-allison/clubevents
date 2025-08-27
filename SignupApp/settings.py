@@ -28,9 +28,6 @@ CSRF_TRUSTED_ORIGINS = [
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-e%234w9@(qh)msl50ou3*x-9d90a@%dcil+tyku)=&1e*(3@w&')
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 ALLOWED_HOSTS = []
 
 
@@ -151,9 +148,10 @@ STATICFILES_DIRS = [
 ]
 
 # Production settings for Railway
-if not os.environ.get('RAILWAY_SERVICE_ID'):
+if os.environ.get('RAILWAY_SERVICE_ID'):
+    DEBUG = False
+else:
     DEBUG = True
-DEBUG = True
 
 # ALLOWED_HOSTS = ['*.railway.app', 'localhost', '127.0.0.1']
 ALLOWED_HOSTS = ['*']
