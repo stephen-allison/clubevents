@@ -177,7 +177,9 @@ Q_CLUSTER = {
     'orm': 'default'  # Uses PostgreSQL database
 }
 
-
+# Email backend settings for better connection handling
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_TIMEOUT = 60
 try:
     from .local_settings import *
 except ImportError:
