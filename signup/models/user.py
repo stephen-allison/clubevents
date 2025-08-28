@@ -1,5 +1,8 @@
 import hashlib
+import datetime
 import uuid
+from datetime import timezone
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, User
 from django.db import models
@@ -48,18 +51,26 @@ class PendingVerification(models.Model):
     email = models.EmailField()
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
+    verified_time = models.DateTimeField(null=True, blank=True)
 
     @property
     def token(self):
         uuid_str = str(self.uuid)
         tok_str = uuid_str + self.email
         uuid_hash = hashlib.sha256(tok_str.encode('utf-8')).hexdigest()
+        return uuid_hash
 
     def verify(self, candidate_token):
-        return candidate_token == self.token
+        age = datetime.datetime.now(datetime.timezone.utc) - self.created
+        not_too_old = age.total_seconds() <= 4 * 60 * 60
+        print(f'verifying token {candidate_token}')
+        print(f'age {age}')
+        print(f'not_too_old {not_too_old}')
+        print(f'token to match {self.token}')
+        return not_too_old and (candidate_token == self.token)
 
     def __str__(self):
-        return f'{self.email} {self.created} {self.uuid}'
+        return f'{self.email} {self.created} {self.token}'
 
 class UserProfile(models.Model):
     '''

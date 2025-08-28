@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.views import LoginView
@@ -30,15 +31,21 @@ def ea_email_lookup_view(request):
             ea_email = form.cleaned_data['ea_email']
 
             try:
-                pending_verification = PendingVerification.objects.get(email=ea_email)
-                pending_verification.delete()
+                prev_pending_verification = PendingVerification.objects.get(email=ea_email)
+                prev_pending_verification.delete()
             except PendingVerification.DoesNotExist:
                 pass
             finally:
-                verification = PendingVerification.objects.create(email=ea_email)
+                new_verification = PendingVerification.objects.create(email=ea_email)
 
-            #return redirect('signup:verify_email', ea_email=ea_email)
-            verify_context = {'email': ea_email, 'token': str(verification.uuid)}
+            rel_uri = reverse('signup:email_verified',
+                              kwargs={'token': str(new_verification.token),
+                                      'ea_email': new_verification.email})
+            link = request.build_absolute_uri(rel_uri)
+            full_link = f'<a href="{link}">Click to verify your email</a>'
+            send_email_verification(new_verification.email, full_link)
+
+            verify_context = {'email': ea_email, 'token': str(new_verification.token)}
             print(verify_context)
             return render(request, template_name='signup/verify_email.html', context=verify_context)
     else:
@@ -83,10 +90,10 @@ def register_with_preregistration_view(request, ea_urn):
         'preregistration': preregistration
     })
 
-def verify_email(request, ea_email):
+def verify_email_start(request, ea_email):
     try:
         pending_verification = PendingVerification.objects.get(email=ea_email)
-        rel_uri = reverse('signup:register_with_preregistration_email',
+        rel_uri = reverse('signup:email_verified',
                           kwargs={'token': str(pending_verification.uuid),
                                   'ea_email': pending_verification.email})
         link = request.build_absolute_uri(rel_uri)
@@ -101,11 +108,15 @@ def verify_email(request, ea_email):
         pass
     return redirect('signup:activate_email')
 
-def email_validation(request, ea_email, token):
+
+def verify_email_finish(request, token, ea_email):
     try:
         pending_verification = PendingVerification.objects.get(email=ea_email)
-        if token != str(pending_verification.uuid):
+        if not pending_verification.verify(token):
             return redirect('signup:activate_email')
+        pending_verification.verified_time = datetime.datetime.now(datetime.timezone.utc)
+        pending_verification.save()
+        return render(request, 'signup/email_verified.html')
     except PendingVerification.DoesNotExist:
         return redirect('signup:activate_email')
 
