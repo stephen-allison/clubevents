@@ -10,19 +10,6 @@ from ..models import PreRegistration, PendingVerification
 from ..mail import send_email_verification
 
 
-def ea_urn_lookup_view(request):
-    if request.method == 'POST':
-        form = EAURNLookupForm(request.POST)
-        if form.is_valid():
-            ea_urn = form.cleaned_data['ea_urn']
-            # Redirect to registration form with EA URN in URL
-            return redirect('signup:register_with_preregistration', ea_urn=ea_urn)
-    else:
-        form = EAURNLookupForm()
-
-    return render(request, 'signup/eaurn_lookup.html', {'form': form})
-
-
 def ea_email_lookup_view(request):
     if request.method == 'POST':
         print('email form submitted')
@@ -54,41 +41,7 @@ def ea_email_lookup_view(request):
     print('form errors: ', form.errors)
     return render(request, 'signup/eaemail_lookup.html', context={'form': form})
 
-def register_with_preregistration_view(request, ea_urn):
-    # Get the preregistration data
-    try:
-        preregistration = PreRegistration.objects.get(ea_urn=ea_urn)
-    except PreRegistration.DoesNotExist:
-        messages.error(request, 'Invalid EA URN or pre-registration not found.')
-        return redirect('signup:activate')
 
-    # Check if user already exists
-    User = get_user_model()
-    if User.objects.filter(ea_urn=ea_urn).exists():
-        messages.error(request, 'A user account already exists with this EA URN.')
-        return redirect('signup:login')
-
-    if request.method == 'POST':
-        form = CustomUserCreationForm(preregistration=preregistration, data=request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.ea_urn = ea_urn  # Set the EA URN from the lookup
-            user.save()
-
-            preregistration.activated = True
-            preregistration.save()
-
-            # Log the user in
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('signup:event_list_signups')
-    else:
-        form = CustomUserCreationForm(preregistration=preregistration)
-
-    return render(request, 'signup/register_with_preregistration.html', {
-        'form': form,
-        'preregistration': preregistration
-    })
 
 def verify_email_start(request, ea_email):
     try:
