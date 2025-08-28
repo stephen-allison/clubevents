@@ -42,6 +42,7 @@ class PreRegistration(models.Model):
     email = models.EmailField()
     birth_date = models.DateField(null=True, blank=False)
     activated = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} EA:{self.ea_urn}'

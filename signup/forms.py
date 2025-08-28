@@ -85,6 +85,7 @@ class CustomUserCreationForm(UserCreationForm):
 
         # Pre-fill fields if preregistration data is provided
         if preregistration:
+            self._preregistration = preregistration
             self.fields['first_name'].initial = preregistration.first_name
             self.fields['last_name'].initial = preregistration.last_name
             self.fields['email'].initial = preregistration.email
@@ -93,3 +94,10 @@ class CustomUserCreationForm(UserCreationForm):
             # Optionally suggest a username based on their name
             suggested_username = f"{preregistration.first_name.lower()}.{preregistration.last_name.lower()}"
             self.fields['username'].initial = suggested_username
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.ea_urn = self._preregistration.ea_urn
+        if commit:
+            user.save()
+        return user

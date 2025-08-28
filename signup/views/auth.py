@@ -116,6 +116,16 @@ def verify_email_finish(request, token, ea_email):
             return redirect('signup:activate_email')
         pending_verification.verified_time = datetime.datetime.now(datetime.timezone.utc)
         pending_verification.save()
+
+        try:
+            pre_reg = PreRegistration.objects.get(email=ea_email)
+            print(f'found pre registration  {pre_reg}')
+            pre_reg.email_verified = True
+            pre_reg.save()
+        except PreRegistration.DoesNotExist:
+            print('Pre-registration not found.')
+            redirect('signup:activate_email')
+
         return render(request, 'signup/email_verified.html')
     except PendingVerification.DoesNotExist:
         return redirect('signup:activate_email')
@@ -124,15 +134,10 @@ def verify_email_finish(request, token, ea_email):
 
 def register_with_preregistration_view_email(request, token, ea_email):
     try:
-        pending_verification = PendingVerification.objects.get(email=ea_email)
-        if token != str(pending_verification.uuid):
-            return redirect('signup:activate_email')
-    except PendingVerification.DoesNotExist:
-        return redirect('signup:activate_email')
-    # Get the preregistration data
-    print(f'email verified {pending_verification.email}')
-    try:
         preregistration = PreRegistration.objects.get(email=ea_email)
+        if not preregistration.email_verified:
+            print('pre reg email not verified')
+            return redirect('signup:activate_email')
     except PreRegistration.DoesNotExist:
         messages.error(request, 'Invalid email address or pre-registration not found.')
         print('no email found')
@@ -141,30 +146,69 @@ def register_with_preregistration_view_email(request, token, ea_email):
     # Check if user already exists
     User = get_user_model()
     if User.objects.filter(email=ea_email).exists():
-        messages.error(request, 'A user account already exists with this EA URN.')
+        messages.error(request, 'A user account already exists with this email.')
         return redirect('signup:login')
 
-    if request.method == 'POST':
-        form = CustomUserCreationForm(preregistration=preregistration, data=request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.ea_urn = ea_email  # Set the EA URN from the lookup
-            user.save()
+    # Store token and email in session for form submission
+    request.session['registration_token'] = token
+    request.session['registration_email'] = ea_email
 
-            preregistration.activated = True
-            preregistration.save()
-
-            # Log the user in
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('signup:event_list_signups')
-    else:
-        form = CustomUserCreationForm(preregistration=preregistration)
-
+    form = CustomUserCreationForm(preregistration=preregistration)
     return render(request, 'signup/register_with_preregistration.html', {
         'form': form,
         'preregistration': preregistration
     })
+
+
+def register_form_submit(request):
+    """Handle POST submission of registration form"""
+    if request.method != 'POST':
+        return redirect('signup:activate_email')
+    
+    # Get token and email from session
+    token = request.session.get('registration_token')
+    ea_email = request.session.get('registration_email')
+    
+    if not token or not ea_email:
+        messages.error(request, 'Registration session expired. Please start again.')
+        return redirect('signup:activate_email')
+
+    try:
+        preregistration = PreRegistration.objects.get(email=ea_email)
+        if not preregistration.email_verified:
+            return redirect('signup:activate_email')
+    except PreRegistration.DoesNotExist:
+        messages.error(request, 'Invalid registration data.')
+        return redirect('signup:activate_email')
+
+    # Check if user already exists (double-check)
+    User = get_user_model()
+    if User.objects.filter(email=ea_email).exists():
+        messages.error(request, 'A user account already exists with this email.')
+        return redirect('signup:login')
+
+    form = CustomUserCreationForm(preregistration=preregistration, data=request.POST)
+    if form.is_valid():
+        user = form.save(commit=True)
+        print(f'created user {user}')
+
+        preregistration.activated = True
+        preregistration.save()
+
+        # Clear session data
+        request.session.pop('registration_token', None)
+        request.session.pop('registration_email', None)
+
+        # Log the user in
+        login(request, user)
+        messages.success(request, 'Registration successful!')
+        return redirect('signup:event_list_signups')
+    else:
+        # If form is invalid, redisplay with errors
+        return render(request, 'signup/register_with_preregistration.html', {
+            'form': form,
+            'preregistration': preregistration
+        })
 
 class CustomLoginView(LoginView):
     template_name = 'signup/login.html'
