@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, User
@@ -42,6 +43,23 @@ class PreRegistration(models.Model):
     def __str__(self):
         return f'{self.first_name} {self.last_name} EA:{self.ea_urn}'
 
+
+class PendingVerification(models.Model):
+    email = models.EmailField()
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def token(self):
+        uuid_str = str(self.uuid)
+        tok_str = uuid_str + self.email
+        uuid_hash = hashlib.sha256(tok_str.encode('utf-8')).hexdigest()
+
+    def verify(self, candidate_token):
+        return candidate_token == self.token
+
+    def __str__(self):
+        return f'{self.email} {self.created} {self.uuid}'
 
 class UserProfile(models.Model):
     '''

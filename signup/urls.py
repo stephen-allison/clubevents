@@ -14,7 +14,10 @@ urlpatterns = [
     path('calendar/<uuid:uid>.ics', views.calendar_feed, name='calendar_feed'),
     path('event/<int:event_id>/participants/', views.participants_for_event, name='participants_for_event'),
     path('activate/', views.ea_urn_lookup_view, name='activate'),
+    path('activateemail/', views.ea_email_lookup_view, name='activate_email'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='signup:login'), name='logout'),
-    path('register/<str:ea_urn>/', views.register_with_preregistration_view, name='register_with_preregistration'),
+    path('register/<str:ea_urn>', views.register_with_preregistration_view, name='register_with_preregistration'),
+    path('register_with_email/<str:token>/<str:ea_email>/', views.register_with_preregistration_view_email, name='register_with_preregistration_email'),
+    path('verify_email/<str:ea_email>/}', views.verify_email, name='verify_email'),
 ]

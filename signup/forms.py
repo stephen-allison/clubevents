@@ -25,7 +25,7 @@ class EAURNLookupForm(forms.Form):
         try:
             PreRegistration.objects.get(ea_urn=ea_urn)
         except PreRegistration.DoesNotExist:
-            raise forms.ValidationError("No pre-registration found with this EA URN.")
+            raise forms.ValidationError("No pre-registration found with this EA URN!!")
 
         # Check if user already exists with this EA URN
         User = get_user_model()
@@ -33,6 +33,33 @@ class EAURNLookupForm(forms.Form):
             raise forms.ValidationError("A user account already exists with this EA URN.")
 
         return ea_urn
+
+class EAEmailLookupForm(forms.Form):
+    ea_email = forms.CharField(
+        label="Your email address",
+        max_length=512,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500',
+            'placeholder': 'Enter your email address'
+        })
+    )
+
+    def clean_ea_email(self):
+        ea_email = self.cleaned_data['ea_email']
+
+        # Check if PreRegistration exists with this EA URN
+        try:
+            PreRegistration.objects.get(email=ea_email)
+        except PreRegistration.DoesNotExist:
+            raise forms.ValidationError("No pre-registration found with this email address")
+
+        # Check if user already exists
+        User = get_user_model()
+        if User.objects.filter(email=ea_email).exists():
+            raise forms.ValidationError("A user account already exists with this mail address.")
+
+        return ea_email
+
 
 
 class CustomUserCreationForm(UserCreationForm):

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from .models import Event, Signup, PreRegistration
+from .models import Event, Signup, PreRegistration, PendingVerification
 
 USER_MODEL = get_user_model()
 
@@ -9,4 +9,5 @@ USER_MODEL = get_user_model()
 admin.site.register(Event)
 admin.site.register(Signup)
 admin.site.register(PreRegistration)
+admin.site.register(PendingVerification)
 admin.site.register(USER_MODEL, UserAdmin)

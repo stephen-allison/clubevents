@@ -12,4 +12,18 @@ def _do_send_basic(event_name, event_date, address):
         'You registered for an event',
         content,
         settings.DEFAULT_FROM_EMAIL,
-    ['steve.allison@clara.co.uk'], fail_silently=False)
+    [address], fail_silently=False)
+
+
+def send_email_verification(to_address, link):
+    content = f'Click the following link to verify your email: {link}'
+    tasks.async_task('signup.mail._do_send_email_verification', to_address, content)
+
+def _do_send_email_verification(to_address, content):
+    print(settings.DEFAULT_FROM_EMAIL)
+    send_mail(
+        'Verify your email',
+        content,
+        settings.DEFAULT_FROM_EMAIL,
+        [to_address])
+
