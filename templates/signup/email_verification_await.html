@@ -1,0 +1,7 @@
+<div hx-get="{%  url 'signup:check_email_verification' email=email %}"
+     hx-trigger="load delay:2s"
+     hx-swap="outerHTML">
+    <p class="text-gray-600 mb-6">
+        Awaiting email verification...
+    </p>
+</div>

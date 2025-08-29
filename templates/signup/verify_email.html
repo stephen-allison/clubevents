@@ -1,6 +1,12 @@
 {% extends 'signup/base.html' %}
+{% load static %}
+
 
 {% block title %}Verify Email - SignupApp{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="mb-6">
@@ -16,17 +22,21 @@
         </div>
         
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Verification Email Sent</h2>
-        
         <p class="text-gray-600 mb-6">
             We've sent a verification email to your inbox. Please check your email and click the verification link to continue with your registration.
         </p>
+        <div hx-get="{%  url 'signup:check_email_verification' email=email %}"
+             hx-trigger="every 2s"
+             hx-swap="outerHTML">
+            <p class="text-gray-600 mb-6">
+                Awaiting email verification...
+            </p>
+        </div>
 
-        <p class="text-gray-600 mb-6">
-            When you've done that <a href="#" onclick="document.getElementById('verification-form').submit(); return false;" class="text-blue-600 hover:text-blue-500">click to finish your registration</a>
-        </p>
-
-        <!-- Hidden form with email and token -->
-        <form id="verification-form" method="post" action="{% url 'signup:register_with_preregistration_email' token=token ea_email=email %}" style="display: none;">
+        <form id="verification-form"
+              method="post"
+              action="{% url 'signup:register_with_preregistration_email' token=token ea_email=email %}"
+              style="display: none;">
             {% csrf_token %}
             <input type="hidden" name="email" value="{{ email }}">
             <input type="hidden" name="token" value="{{ token }}">

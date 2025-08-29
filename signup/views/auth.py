@@ -1,4 +1,6 @@
 import datetime
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.views import LoginView
@@ -83,7 +85,15 @@ def verify_email_finish(request, token, ea_email):
     except PendingVerification.DoesNotExist:
         return redirect('signup:activate_email')
 
+def check_email_verification(request, email):
+    verified = PendingVerification.objects.filter(email=email, verified_time__isnull=False).exists()
+    if verified:
+        template = 'signup/email_verified_continue.html'
+    else:
+        template = 'signup/email_verification_await.html'
+    context = {'email': email}
 
+    return render(request, template, context)
 
 def register_with_preregistration_view_email(request, token, ea_email):
     try:

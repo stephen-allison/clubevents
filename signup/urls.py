@@ -18,5 +18,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='signup:login'), name='logout'),
     path('register_with_email/<str:token>/<str:ea_email>/', views.register_with_preregistration_view_email, name='register_with_preregistration_email'),
     path('register_submit/', views.register_form_submit, name='register_form_submit'),
-    path('email_verified/<str:token>/<str:ea_email>/', views.verify_email_finish, name='email_verified')
+    path('email_verified/<str:token>/<str:ea_email>/', views.verify_email_finish, name='email_verified'),
+    path('check_email_verification/<str:email>/', views.check_email_verification, name='check_email_verification')
 ]
