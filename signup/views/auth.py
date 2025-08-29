@@ -31,8 +31,7 @@ def ea_email_lookup_view(request):
                               kwargs={'token': str(new_verification.token),
                                       'ea_email': new_verification.email})
             link = request.build_absolute_uri(rel_uri)
-            full_link = f'<a href="{link}">Click to verify your email</a>'
-            send_email_verification(new_verification.email, full_link)
+            send_email_verification(new_verification.email, link)
 
             verify_context = {'email': ea_email, 'token': str(new_verification.token)}
             print(verify_context)

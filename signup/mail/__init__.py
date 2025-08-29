@@ -7,7 +7,17 @@ def send_basic(event_name, event_date, address):
     tasks.async_task('signup.mail._do_send_basic', event_name, event_date, address)
 
 def _do_send_basic(event_name, event_date, address):
-    content = f'You signed up for {event_name} at {event_date}'
+    content = f'''
+    You've signed up for the following event:
+    
+    {event_name} taking place on {event_date}
+    
+    If you can't attend please use the 'withdraw' button on the web site.
+    
+    Thanks!
+    
+    The QPH team.
+    '''
     send_mail(
         'You registered for an event',
         content,
@@ -16,7 +26,19 @@ def _do_send_basic(event_name, event_date, address):
 
 
 def send_email_verification(to_address, link):
-    content = f'Click the following link to verify your email: {link}'
+    content = f'''
+    Hi! You're registering with the QPH events website. 
+    The next step is to verify your email by clicking the link below.  
+    
+    When you've done that return to the site to continue.
+    
+    {link}
+    
+    Thanks!
+    
+    The QPH team.
+    '''
+
     tasks.async_task('signup.mail._do_send_email_verification', to_address, content)
 
 def _do_send_email_verification(to_address, content):
